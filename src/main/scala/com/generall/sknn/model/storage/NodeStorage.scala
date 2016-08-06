@@ -7,7 +7,7 @@ import com.generall.sknn.model.storage.elements.BaseElement
   */
 trait NodeStorage[T <: BaseElement] {
 
-  def getClosestN(element: T, n: Int): (T, Double) // return element and distance
+  def getClosestN(element: T, n: Int): List[(T, Double)] // return element and distance
 
   def getMinDistance(element: T, n: Int): Double
 

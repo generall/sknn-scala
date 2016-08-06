@@ -20,3 +20,7 @@ map1(1) = 4
 map1(2) = 8
 
 map1.map(x => (x, 1) ).toList
+
+
+List(1,2,3,4).foldLeft(1)(_ + _)
+

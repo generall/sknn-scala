@@ -18,15 +18,16 @@ class SkNNNodeImpl[T <: BaseElement, S <: NodeStorage[T]](_label: String, _k: In
 
   override val label: String = _label
 
-  override def calcDistances(element: T): List[(SkNNNode[T], Double)] = {
+  override def calcDistances(element: T): Map[SkNNNode[T], Double] = {
     storages.map(pair => pair match {
-      case (linkLabel, linkStorage) => (forwardMap(linkLabel), linkStorage.getMinDistance(element, k))
-    }).toList
+      case (linkLabel, linkStorage) => forwardMap(linkLabel) -> linkStorage.getMinDistance(element, k)
+    }).toMap
   }
 
   override def removeLink(otherLabel: String): Unit = {
     forwardMap.remove(otherLabel) match {
       case Some(x) => x.removeBackLink(label)
+      case None =>
     }
   }
 

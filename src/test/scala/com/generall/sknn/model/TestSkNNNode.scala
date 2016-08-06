@@ -15,11 +15,9 @@ class TestSkNNNode[T <: BaseElement](_label: String) extends SkNNNode[T]{
 
   val data = new mutable.ListBuffer[T]
 
-  override def distanceFunction(el1: T, el2: T): Double = 1.0
-
   override def addElement(element: T, label: String): Unit = data += element
 
-  override def calcDistances(element: T): List[(SkNNNode[T], Double)] = Nil
+  override def calcDistances(element: T): Map[SkNNNode[T], Double] = null
 
   override val label: String = _label
   override val output: mutable.Set[String] = new mutable.HashSet[String]()
@@ -38,7 +36,7 @@ class TestSkNNNode[T <: BaseElement](_label: String) extends SkNNNode[T]{
 
   override def hasLink(otherLabel: String): Boolean = map.contains(otherLabel)
 
-  override def addBackLink(other: SkNNNode[T]): Unit =
+  override def addBackLink(other: SkNNNode[T]): Unit = {}
 
-  override def removeBackLink(otherLabel: String): Unit =
+  override def removeBackLink(otherLabel: String): Unit = {}
 }

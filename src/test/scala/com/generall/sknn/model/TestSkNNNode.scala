@@ -30,7 +30,7 @@ class TestSkNNNode[T <: BaseElement](_label: String) extends SkNNNode[T]{
 
   override def removeLink(otherLabel: String): Unit = map.remove(otherLabel)
 
-  override def getIncommingNodes: List[SkNNNode[T]] = Nil
+  override def getIncomingNodes: List[SkNNNode[T]] = Nil
 
   override def getOutgoingNodes: List[SkNNNode[T]] = map.values.toList
 
@@ -39,4 +39,6 @@ class TestSkNNNode[T <: BaseElement](_label: String) extends SkNNNode[T]{
   override def addBackLink(other: SkNNNode[T]): Unit = {}
 
   override def removeBackLink(otherLabel: String): Unit = {}
+
+  override def calcDistance(element: T, node: SkNNNode[T]): Double = 1.0
 }

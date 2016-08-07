@@ -31,7 +31,7 @@ class SkNNNodeImpl[T <: BaseElement, S <: NodeStorage[T]](_label: String, _k: In
     }
   }
 
-  override def getIncommingNodes: List[SkNNNode[T]] = backwardMap.values.toList
+  override def getIncomingNodes: List[SkNNNode[T]] = backwardMap.values.toList
 
   override def addElement(element: T, label: String): Unit = storages.getOrElseUpdate(label, storageFac()).addElement(element)
 
@@ -50,4 +50,10 @@ class SkNNNodeImpl[T <: BaseElement, S <: NodeStorage[T]](_label: String, _k: In
   override def addBackLink(other: SkNNNode[T]): Unit = backwardMap(other.label) = other
 
   override def removeBackLink(otherLabel: String): Unit = backwardMap.remove(otherLabel)
+
+  override def calcDistance(element: T, node: SkNNNode[T]): Double = storages.get(node.label) match {
+    case None => Double.PositiveInfinity
+    case Some(x) => x.getMinDistance(element, k)
+  }
+
 }

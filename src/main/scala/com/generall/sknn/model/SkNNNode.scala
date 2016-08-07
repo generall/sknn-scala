@@ -26,13 +26,15 @@ trait SkNNNode[T <: BaseElement] extends Serializable{
 
   def calcDistances(element: T): Map[SkNNNode[T], Double]
 
+  def calcDistance(element: T, node: SkNNNode[T]): Double
+
   def addLink(other: SkNNNode[T])
 
   def hasLink(otherLabel: String): Boolean
 
   def removeLink(otherLabel: String)
 
-  def getIncommingNodes: List[SkNNNode[T]]
+  def getIncomingNodes: List[SkNNNode[T]]
 
   def getOutgoingNodes: List[SkNNNode[T]]
 

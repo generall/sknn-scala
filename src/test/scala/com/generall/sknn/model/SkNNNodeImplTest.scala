@@ -46,7 +46,7 @@ class SkNNNodeImplTest extends FunSuite with BeforeAndAfterEach {
     node.addLink(node2)
     node.removeLink("test2")
 
-    assert(node2.getIncommingNodes.isEmpty)
+    assert(node2.getIncomingNodes.isEmpty)
     assert(node.getOutgoingNodes.isEmpty)
   }
 
@@ -54,8 +54,8 @@ class SkNNNodeImplTest extends FunSuite with BeforeAndAfterEach {
     val node2 = new SkNNNodeImpl[TestElement, TestNodeStorage]("test2", 2)(() => new TestNodeStorage())
     node.addLink(node2)
 
-    assert(node2.getIncommingNodes.head == node)
-    assert(node2.getIncommingNodes.size == 1)
+    assert(node2.getIncomingNodes.head == node)
+    assert(node2.getIncomingNodes.size == 1)
     assert(node.getOutgoingNodes.head == node2)
   }
 

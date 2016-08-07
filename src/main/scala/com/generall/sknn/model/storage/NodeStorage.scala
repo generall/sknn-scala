@@ -1,11 +1,9 @@
 package com.generall.sknn.model.storage
 
-import com.generall.sknn.model.storage.elements.BaseElement
-
 /**
   * Created by generall on 06.08.16.
   */
-trait NodeStorage[T <: BaseElement] {
+trait NodeStorage[T] {
 
   def getClosestN(element: T, n: Int): List[(T, Double)] // return element and distance
 

@@ -30,17 +30,28 @@ class Model[T <: BaseElement, N <: SkNNNode[T]](val nodeFac: (String) => N) exte
   nodes(Model.INIT_LABEL) = initNode
   nodes(Model.END_LABEL) = endNode
 
-  def processSequence(sequence: List[T]) = {
-    var currentNode = initNode
+  def processSequenceImpl[K](sequence: List[K])(elementToLabels: (K => List[(String, T)])) = {
+    var currentNodeList = List(initNode)
     sequence.foreach(element => {
-      val nextLabel = element.label
-      val nextNode = getOrCreateNode(nextLabel)
-      nextNode.output ++= element.output
-      currentNode.addElement(element, nextLabel)
-      currentNode.addLink(nextNode)
-      currentNode = nextNode
+      val nextLabelsList = elementToLabels(element)
+      val nextDataList = nextLabelsList.map(x => ( getOrCreateNode(x._1), x._2) )
+      nextDataList.foreach(nextData =>  nextData._1.output ++= nextData._2.output)
+      for(
+        currentNode <- currentNodeList;
+        nextData <- nextDataList
+      ){
+        val (nextNode, subelement) = nextData
+        currentNode.addElement(subelement, nextNode.label)
+        currentNode.addLink(nextNode)
+      }
+      currentNodeList = nextDataList.map(_._1)
     })
-    currentNode.addLink(endNode)
+    currentNodeList.foreach(_.addLink(endNode))
+  }
+
+  def processSequence[K <: T](sequence: List[K]) = {
+    def foo(x: K) : List[(String, T)] = List((x.label, x))
+    processSequenceImpl(sequence)(foo)
   }
 
   def isConnected(label1: String, label2: String): Boolean = {

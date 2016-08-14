@@ -29,8 +29,6 @@ class SkNN[T <: BaseElement, N <: SkNNNode[T]](model: Model[T, N]) {
       val currentDistances = constructDistanceMap
       val currentPath = constructPathMap
 
-      println(s"Viterbi: $idx of $maxIterations")
-
 
       // Iterate all reached at step k-1 nodes
       prev.foreach(pair =>{
@@ -63,8 +61,8 @@ class SkNN[T <: BaseElement, N <: SkNNNode[T]](model: Model[T, N]) {
     (v, path)
   }
 
-  def extractPath(v: List[mutable.Map[TNode, Double]], path: List[mutable.Map[TNode, TNode]]): List[TNode] = {
-    var (node, _) = v.head.minBy(pair => pair._2)
+  def extractPath(v: List[mutable.Map[TNode, Double]], path: List[mutable.Map[TNode, TNode]]): (List[TNode], Double) = {
+    var (node, score) = v.head.minBy(pair => pair._2)
     var res: List[TNode] = List()
     v.head.remove(node)
     path.foreach(pathMap => {
@@ -72,10 +70,10 @@ class SkNN[T <: BaseElement, N <: SkNNNode[T]](model: Model[T, N]) {
       val nextNode = pathMap(node)
       node = nextNode
     })
-    res
+    (res, score)
   }
 
-  def tag(seq: List[T], closestCount: Int)(filterNodes: (T, TNode) => Boolean): List[List[TNode]] = {
+  def tag(seq: List[T], closestCount: Int)(filterNodes: (T, TNode) => Boolean): List[(List[TNode], Double)] = {
     val (v, path) = viterbi(seq)(filterNodes)
     val res = (1 to closestCount).map(_ => extractPath(v, path)).toList
     res

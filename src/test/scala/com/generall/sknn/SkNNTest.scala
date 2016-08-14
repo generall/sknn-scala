@@ -1,7 +1,7 @@
 package com.generall.sknn
 
 import com.generall.sknn.model.storage.PlainAverageStorage
-import com.generall.sknn.model.{SkNNNodeImpl, SkNNNode, Model, TestElement}
+import com.generall.sknn.model._
 import org.scalatest.FunSuite
 
 /**
@@ -68,8 +68,8 @@ class SkNNTest extends FunSuite {
 
     val sknn = new SkNN[TestElement, SkNNNode[TestElement]](model)
 
-    val res1 = sknn.tag(test1, 1)( (_, _) => true).head
-    val res2 = sknn.tag(test2, 1)( (_, _) => true).head
+    val res1 = sknn.tag(test1, 1)( (_, _) => true).head._1
+    val res2 = sknn.tag(test2, 1)( (_, _) => true).head._1
 
     assert(res1.size == 4)
     assert(res2.size == 4)
@@ -83,6 +83,62 @@ class SkNNTest extends FunSuite {
     assert(res2(1).label == "l4")
     assert(res2(2).label == "l5")
     assert(res2(3).label == "l5")
+
+    val measure1 = new LogScaleMeasure(2)
+    val measure2 = new LogScaleMeasure(10)
+
+
+    /**
+      * Creating model with different measurable functions
+      */
+    val modelLog1 = new Model[TestElement, SkNNNode[TestElement]]( (label) => {
+      new SkNNNodeImpl[TestElement, PlainAverageStorage[TestElement]](label, 1)( () => {
+        new PlainAverageStorage[TestElement](
+          (x, y) => measure1.compare(x.value, y.value)
+        )
+      })
+    })
+
+    val modelLog2 = new Model[TestElement, SkNNNode[TestElement]]( (label) => {
+      new SkNNNodeImpl[TestElement, PlainAverageStorage[TestElement]](label, 1)( () => {
+        new PlainAverageStorage[TestElement](
+          (x, y) => measure2.compare(x.value, y.value)
+        )
+      })
+    })
+
+    /**
+      * Saving data to the models (aka learning)
+      */
+
+    modelLog1.processSequence(seq1)
+    modelLog1.processSequence(seq2)
+    modelLog1.processSequence(seq3)
+
+    modelLog2.processSequence(seq1)
+    modelLog2.processSequence(seq2)
+    modelLog2.processSequence(seq3)
+
+    val sknn1 = new SkNN[TestElement, SkNNNode[TestElement]](modelLog1)
+    val sknn2 = new SkNN[TestElement, SkNNNode[TestElement]](modelLog2)
+
+    val RES_COUNT = 2
+
+    /**
+      * Executing classification
+      */
+    val logRes1 = sknn1.tag(test1, RES_COUNT)( (_, _) => true)
+    val logRes2 = sknn2.tag(test1, RES_COUNT)( (_, _) => true)
+
+    assert(logRes1.size == RES_COUNT)
+    assert(logRes2.size == RES_COUNT)
+
+    val logResStates = logRes1.head._1
+
+    assert(logResStates(0).label == "l1")
+    assert(logResStates(1).label == "l1")
+    assert(logResStates(2).label == "l1")
+    assert(logResStates(3).label == "l1")
 
   }
 

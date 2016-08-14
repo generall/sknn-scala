@@ -1,12 +1,12 @@
-import scala.collection.mutable
-
-val x: Double = Math.pow(2,2)
 
 
-val map = new mutable.HashMap[String, Int]().withDefaultValue(7)
+val l1 = List(1, 2, 3)
+val l2 = List(4, 5, 6)
+for(
+  i <- l1;
+  j <- l2
+){
+  println(s"$i - $j")
+}
 
 
-map.get("test")
-
-
-(1 to 1).map(x => x)

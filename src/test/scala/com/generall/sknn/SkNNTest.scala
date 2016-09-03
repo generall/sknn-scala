@@ -68,8 +68,8 @@ class SkNNTest extends FunSuite {
 
     val sknn = new SkNN[TestElement, SkNNNode[TestElement]](model)
 
-    val res1 = sknn.tag(test1, 1)( (_, _) => true).head._1
-    val res2 = sknn.tag(test2, 1)( (_, _) => true).head._1
+    val res1 = sknn.tag(test1, 1).head._1
+    val res2 = sknn.tag(test2, 1).head._1
 
     assert(res1.size == 4)
     assert(res2.size == 4)
@@ -127,8 +127,8 @@ class SkNNTest extends FunSuite {
     /**
       * Executing classification
       */
-    val logRes1 = sknn1.tag(test1, RES_COUNT)( (_, _) => true)
-    val logRes2 = sknn2.tag(test1, RES_COUNT)( (_, _) => true)
+    val logRes1 = sknn1.tag(test1, RES_COUNT)
+    val logRes2 = sknn2.tag(test1, RES_COUNT)
 
     assert(logRes1.size == RES_COUNT)
     assert(logRes2.size == RES_COUNT)

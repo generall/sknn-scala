@@ -15,7 +15,7 @@ class SkNN[T <: BaseElement, N <: SkNNNode[T]](model: Model[T, N]) {
   def constructDistanceMap = new scala.collection.mutable.HashMap[TNode, Double].withDefaultValue(Double.PositiveInfinity)
   def constructPathMap = new scala.collection.mutable.HashMap[TNode, TNode]
 
-  def viterbi(seq: List[T]): (List[mutable.Map[TNode, Double]], List[mutable.HashMap[TNode, TNode]]) = {
+  def viterbi(seq: List[T])(filterNodes: (T, TNode) => Boolean): (List[mutable.Map[TNode, Double]], List[mutable.HashMap[TNode, TNode]]) = {
     var v = List(constructDistanceMap)
     var path: List[scala.collection.mutable.HashMap[TNode, TNode]] = Nil
 
@@ -34,7 +34,7 @@ class SkNN[T <: BaseElement, N <: SkNNNode[T]](model: Model[T, N]) {
       prev.foreach(pair =>{
         val (node, dist) = pair
         if (dist != Double.PositiveInfinity){
-          val outgoingNodes = node.getOutgoingNodes
+          val outgoingNodes = node.getOutgoingNodes.filter(x => filterNodes(element, x))
           outgoingNodes.foreach(nextNode => {
             val localDistance = node.calcDistance(element, nextNode)
             if (localDistance != Double.PositiveInfinity){
@@ -73,8 +73,8 @@ class SkNN[T <: BaseElement, N <: SkNNNode[T]](model: Model[T, N]) {
     (res, score)
   }
 
-  def tag(seq: List[T], closestCount: Int): List[(List[TNode], Double)] = {
-    val (v, path) = viterbi(seq)
+  def tag(seq: List[T], closestCount: Int)(filterNodes: (T, TNode) => Boolean): List[(List[TNode], Double)] = {
+    val (v, path) = viterbi(seq)(filterNodes)
     val res = (1 to closestCount).map(_ => extractPath(v, path)).toList
     res
   }

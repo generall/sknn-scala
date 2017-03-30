@@ -24,6 +24,8 @@ class SkNNNodeImpl[T <: BaseElement, S <: NodeStorage[T]](_label: String, _k: In
     }).toMap
   }
 
+  override def toString: String = label
+
   override def removeLink(otherLabel: String): Unit = {
     forwardMap.remove(otherLabel) match {
       case Some(x) => x.removeBackLink(label)

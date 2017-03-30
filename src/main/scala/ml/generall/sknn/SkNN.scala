@@ -13,58 +13,72 @@ class SkNN[T <: BaseElement, N <: SkNNNode[T]](model: Model[T, N]) {
   type TNode = SkNNNode[T]
 
   def constructDistanceMap = new scala.collection.mutable.HashMap[TNode, Double].withDefaultValue(Double.PositiveInfinity)
+
   def constructPathMap = new scala.collection.mutable.HashMap[TNode, TNode]
 
-  def viterbi(seq: List[T])(filterNodes: (T, TNode) => Boolean): (List[mutable.Map[TNode, Double]], List[mutable.HashMap[TNode, TNode]]) = {
-    var v = List(constructDistanceMap)
-    var path: List[scala.collection.mutable.HashMap[TNode, TNode]] = Nil
+  def viterbi(seq: List[T])(filterNodes: (T, TNode) => Boolean): (List[Map[TNode, Double]], List[Map[TNode, TNode]]) = {
+    var v = List(
+      Map[TNode, Double](
+        model.initNode -> 0.0
+      ).withDefaultValue(Double.PositiveInfinity)
+    )
 
-    v.head(model.initNode) = 0.0
+    var path: List[Map[TNode, TNode]] = Nil
 
     val maxIterations = seq.size
 
-    seq.zipWithIndex.foreach( pair => {
-      val (element, idx) = pair
+    seq.foreach(element => {
       val prev = v.head
-      val currentDistances = constructDistanceMap
-      val currentPath = constructPathMap
-
 
       // Iterate all reached at step k-1 nodes
-      prev.foreach(pair =>{
-        val (node, dist) = pair
-        if (dist != Double.PositiveInfinity){
-          val outgoingNodes = node.getOutgoingNodes.filter(x => filterNodes(element, x))
-          outgoingNodes.foreach(nextNode => {
-            val localDistance = node.calcDistance(element, nextNode)
-            if (localDistance != Double.PositiveInfinity){
-              val d = dist + localDistance
-              if (d < currentDistances(nextNode)){
-                currentDistances(nextNode) = d
-                currentPath(nextNode) = node
-              }
-            }
-          })
+
+      val (currentDistances, currentPath) = prev
+        .par
+        .filter(_._2 != Double.PositiveInfinity)
+        .flatMap {
+          case (node, dist) =>
+            node.getOutgoingNodes
+              .filter(x => filterNodes(element, x))
+              .map((node, dist, _))
         }
-      })
+        .map {
+          case (node, dist, nextNode) =>
+            (node, nextNode, dist + node.calcDistance(element, nextNode))
+        }
+        .filter(_._3 != Double.PositiveInfinity)
+        .groupBy(_._2)
+        .map {
+          case (node, list) =>
+            val (from, to, minDist) = list.minBy(_._3)
+            ((to, minDist), (to, from))
+        }
+        .unzip match {
+        case (dists, prevs) =>
+          (dists.toList.toMap, prevs.toList.toMap)
+      }
+
       v = currentDistances :: v
       path = currentPath :: path
     })
 
     // do not calc distances for paths no ended with +end_node+
-    path.head.keySet.foreach(lastNode => {
-      if (!lastNode.hasLink(Model.END_LABEL)) {
-        v.last(lastNode) = Double.PositiveInfinity
-      }
-    })
+    val fixedHead = path.head.map {
+      case (lastNode, _) =>
+        if (lastNode.hasLink(Model.END_LABEL)) {
+          lastNode -> v.head(lastNode)
+        } else {
+          lastNode -> Double.PositiveInfinity
+        }
+    }
 
-    (v, path)
+    val _ :: vTail = v
+
+    (fixedHead :: vTail, path)
   }
 
-  def extractPath(v: List[mutable.Map[TNode, Double]], path: List[mutable.Map[TNode, TNode]]): (List[TNode], Double) = {
+  def extractPath(v: List[Map[TNode, Double]], path: List[Map[TNode, TNode]]): (List[TNode], Double) = {
     var (node, score) = v.head.minBy(pair => pair._2)
     var res: List[TNode] = List()
-    v.head.remove(node)
     path.foreach(pathMap => {
       res = node :: res
       val nextNode = pathMap(node)

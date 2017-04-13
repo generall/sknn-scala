@@ -76,7 +76,9 @@ class SkNN[T <: BaseElement, N <: SkNNNode[T]](model: Model[T, N]) {
 
   def tag(seq: List[T], closestCount: Int)(filterNodes: (T, TNode) => Boolean): List[(List[TNode], Double)] = {
     val (v, path) = viterbi(seq)(filterNodes)
-    val res = (1 to closestCount).map(_ => extractPath(v, path)).toList
+    val res = (1 to closestCount).flatMap(_ => {
+      if(v.head.nonEmpty) Some(extractPath(v, path)) else None
+    }).toList
     res
   }
 

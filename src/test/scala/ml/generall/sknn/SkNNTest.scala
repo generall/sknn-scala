@@ -54,6 +54,14 @@ class SkNNTest extends FunSuite {
       elemCreator(null, 22)
     )
 
+    val test3 = List(
+      elemCreator(null, 1) ,
+      elemCreator(null, Double.PositiveInfinity),
+      elemCreator(null, 23),
+      elemCreator(null, 22)
+    )
+
+
     val model = new Model[TestElement, SkNNNode[TestElement]]( (label) => {
       new SkNNNodeImpl[TestElement, PlainAverageStorage[TestElement]](label, 1)( () => {
         new PlainAverageStorage[TestElement](
@@ -70,6 +78,11 @@ class SkNNTest extends FunSuite {
 
     val res1 = sknn.tag(test1, 1)( (_, _) => true).head._1
     val res2 = sknn.tag(test2, 1)( (_, _) => true).head._1
+
+
+    val res3 = sknn.tag(test3, 1)( (_, _) => true)
+
+    assert(res3.isEmpty)
 
     assert(res1.size == 4)
     assert(res2.size == 4)

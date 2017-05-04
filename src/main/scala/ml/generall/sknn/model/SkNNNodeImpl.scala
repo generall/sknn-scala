@@ -19,9 +19,9 @@ class SkNNNodeImpl[T <: BaseElement, S <: NodeStorage[T]](_label: String, _k: In
   override val label: String = _label
 
   override def calcDistances(element: T): Map[SkNNNode[T], Double] = {
-    storages.map(pair => pair match {
+    storages.map {
       case (linkLabel, linkStorage) => forwardMap(linkLabel) -> linkStorage.getMinDistance(element, k)
-    }).toMap
+    }.toMap
   }
 
   override def toString: String = label

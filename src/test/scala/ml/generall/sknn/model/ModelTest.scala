@@ -7,10 +7,10 @@ import org.scalatest.{BeforeAndAfterEach, FunSuite}
   */
 class ModelTest extends FunSuite with BeforeAndAfterEach {
 
-  var model:Model[TestElement, TestSkNNNode[TestElement]] = null
+  var model:Model[TestElement] = null
 
   override def beforeEach() {
-    model = new Model[TestElement, TestSkNNNode[TestElement]](label => new TestSkNNNode[TestElement](label))
+    model = new Model[TestElement](label => new TestSkNNNode[TestElement](label))
   }
 
   test("testProcessSequence") {

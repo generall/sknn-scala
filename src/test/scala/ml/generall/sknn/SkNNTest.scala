@@ -76,10 +76,10 @@ class SkNNTest extends FunSuite {
     model.processSequence(seq2)
     model.processSequence(seq3)
 
-    val sknn = new SkNN[TestElement, SkNNNode[TestElement]](model)
+    val sknn = new SkNN[TestElement](model)
 
-    val res1 = sknn.tag(test1, 1)((_, _) => true).head._1
-    val res2 = sknn.tag(test2, 1)((_, _) => true).head._1
+    val res1 = sknn.tag(test1).get._1
+    val res2 = sknn.tag(test2).get._1
 
 
     val res3 = sknn.tag(test3, 1)((_, _) => true)
@@ -106,7 +106,7 @@ class SkNNTest extends FunSuite {
     /**
       * Creating model with different measurable functions
       */
-    val modelLog1 = new Model[TestElement, SkNNNode[TestElement]]((label) => {
+    val modelLog1 = new Model[TestElement]((label) => {
       new SkNNNodeImpl[TestElement](label, 1)(() => {
         new PlainAverageStorage[TestElement](
           (x, y) => measure1.compare(x.value, y.value)
@@ -114,7 +114,7 @@ class SkNNTest extends FunSuite {
       })
     })
 
-    val modelLog2 = new Model[TestElement, SkNNNode[TestElement]]((label) => {
+    val modelLog2 = new Model[TestElement]((label) => {
       new SkNNNodeImpl[TestElement](label, 1)(() => {
         new PlainAverageStorage[TestElement](
           (x, y) => measure2.compare(x.value, y.value)
@@ -134,8 +134,8 @@ class SkNNTest extends FunSuite {
     modelLog2.processSequence(seq2)
     modelLog2.processSequence(seq3)
 
-    val sknn1 = new SkNN[TestElement, SkNNNode[TestElement]](modelLog1)
-    val sknn2 = new SkNN[TestElement, SkNNNode[TestElement]](modelLog2)
+    val sknn1 = new SkNN[TestElement](modelLog1)
+    val sknn2 = new SkNN[TestElement](modelLog2)
 
     val RES_COUNT = 2
 

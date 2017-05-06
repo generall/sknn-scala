@@ -8,7 +8,7 @@ import scala.collection.mutable
 /**
   * Created by generall on 02.08.16.
   */
-class SkNN[T <: BaseElement, N <: SkNNNode[T]](model: Model[T, N]) {
+class SkNN[T <: BaseElement](model: Model[T]) {
 
   type TNode = SkNNNode[T]
 
@@ -82,5 +82,6 @@ class SkNN[T <: BaseElement, N <: SkNNNode[T]](model: Model[T, N]) {
     res
   }
 
+  def tag(seq: List[T]): Option[(List[TNode], Double /* summary distance of target sequence */)] = tag(seq, 1)((_, _) => true).headOption
 
 }

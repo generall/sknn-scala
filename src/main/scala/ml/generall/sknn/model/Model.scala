@@ -13,7 +13,9 @@ import scala.collection.mutable
   * N - implement storage inside single node
   *
   */
-class Model[T <: BaseElement, N <: SkNNNode[T]](val nodeFac: String => N) extends Serializable {
+class Model[T <: BaseElement](val nodeFac: String => SkNNNode[T]) extends Serializable {
+
+  type N = SkNNNode[T]
 
   val nodes = new mutable.HashMap[String, N]()
 
@@ -75,5 +77,5 @@ object Model {
   val END_LABEL = "end"
 
   def createModel[T <: BaseElement](k: Int = 1, nodeFactory: NodeStorageFactory[T]) =
-    new Model[T, SkNNNode[T]](label => new SkNNNodeImpl[T](label, k)(() => nodeFactory.create))
+    new Model[T](label => new SkNNNodeImpl[T](label, k)(() => nodeFactory.create))
 }

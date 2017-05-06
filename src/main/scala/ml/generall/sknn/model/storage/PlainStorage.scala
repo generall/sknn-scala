@@ -22,3 +22,6 @@ abstract class PlainStorage[T](distFoo: (T,T) => Double) extends NodeStorage[T]{
 
   override def addElement(element: T): Unit = data = element :: data
 }
+
+abstract class PlainStorageFactory[T](distFoo: (T,T) => Double) extends NodeStorageFactory[T] {
+}

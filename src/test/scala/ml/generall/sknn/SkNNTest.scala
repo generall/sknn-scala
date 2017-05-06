@@ -1,6 +1,6 @@
 package ml.generall.sknn
 
-import ml.generall.sknn.model.storage.PlainAverageStorage
+import ml.generall.sknn.model.storage.{PlainAverageStorage, PlainAverageStorageFactory}
 import ml.generall.sknn.model._
 import org.scalatest.FunSuite
 
@@ -9,7 +9,7 @@ import org.scalatest.FunSuite
   */
 class SkNNTest extends FunSuite {
 
-  def elemCreator(label: String, value: Double): TestElement  = {
+  def elemCreator(label: String, value: Double): TestElement = {
     val e = new TestElement(label)
     e.value = value
     e
@@ -18,14 +18,14 @@ class SkNNTest extends FunSuite {
   test("testViterbi") {
 
     val seq1 = List(
-      elemCreator("l1", 1) ,
+      elemCreator("l1", 1),
       elemCreator("l2", 100),
       elemCreator("l3", 10),
       elemCreator("l3", 11)
     )
 
     val seq2 = List(
-      elemCreator("l1", 1) ,
+      elemCreator("l1", 1),
       elemCreator("l4", 50),
       elemCreator("l5", 21),
       elemCreator("l5", 20)
@@ -41,34 +41,36 @@ class SkNNTest extends FunSuite {
 
 
     val test1 = List(
-      elemCreator(null, 1) ,
+      elemCreator(null, 1),
       elemCreator(null, 70),
       elemCreator(null, 0),
       elemCreator(null, 0)
     )
 
     val test2 = List(
-      elemCreator(null, 1) ,
+      elemCreator(null, 1),
       elemCreator(null, 80),
       elemCreator(null, 23),
       elemCreator(null, 22)
     )
 
     val test3 = List(
-      elemCreator(null, 1) ,
+      elemCreator(null, 1),
       elemCreator(null, Double.PositiveInfinity),
       elemCreator(null, 23),
       elemCreator(null, 22)
     )
 
 
-    val model = new Model[TestElement, SkNNNode[TestElement]]( (label) => {
-      new SkNNNodeImpl[TestElement, PlainAverageStorage[TestElement]](label, 1)( () => {
-        new PlainAverageStorage[TestElement](
-          (x, y) => (x.value - y.value).abs
-        )
-      })
-    })
+    val model = Model.createModel[TestElement](1, new PlainAverageStorageFactory((x, y) => (x.value - y.value).abs))
+
+    //    val model = new Model[TestElement, SkNNNode[TestElement]]( (label) => {
+    //      new SkNNNodeImpl[TestElement, PlainAverageStorage[TestElement]](label, 1)( () => {
+    //        new PlainAverageStorage[TestElement](
+    //          (x, y) => (x.value - y.value).abs
+    //        )
+    //      })
+    //    })
 
     model.processSequence(seq1)
     model.processSequence(seq2)
@@ -76,11 +78,11 @@ class SkNNTest extends FunSuite {
 
     val sknn = new SkNN[TestElement, SkNNNode[TestElement]](model)
 
-    val res1 = sknn.tag(test1, 1)( (_, _) => true).head._1
-    val res2 = sknn.tag(test2, 1)( (_, _) => true).head._1
+    val res1 = sknn.tag(test1, 1)((_, _) => true).head._1
+    val res2 = sknn.tag(test2, 1)((_, _) => true).head._1
 
 
-    val res3 = sknn.tag(test3, 1)( (_, _) => true)
+    val res3 = sknn.tag(test3, 1)((_, _) => true)
 
     assert(res3.isEmpty)
 
@@ -104,16 +106,16 @@ class SkNNTest extends FunSuite {
     /**
       * Creating model with different measurable functions
       */
-    val modelLog1 = new Model[TestElement, SkNNNode[TestElement]]( (label) => {
-      new SkNNNodeImpl[TestElement, PlainAverageStorage[TestElement]](label, 1)( () => {
+    val modelLog1 = new Model[TestElement, SkNNNode[TestElement]]((label) => {
+      new SkNNNodeImpl[TestElement](label, 1)(() => {
         new PlainAverageStorage[TestElement](
           (x, y) => measure1.compare(x.value, y.value)
         )
       })
     })
 
-    val modelLog2 = new Model[TestElement, SkNNNode[TestElement]]( (label) => {
-      new SkNNNodeImpl[TestElement, PlainAverageStorage[TestElement]](label, 1)( () => {
+    val modelLog2 = new Model[TestElement, SkNNNode[TestElement]]((label) => {
+      new SkNNNodeImpl[TestElement](label, 1)(() => {
         new PlainAverageStorage[TestElement](
           (x, y) => measure2.compare(x.value, y.value)
         )
@@ -140,8 +142,8 @@ class SkNNTest extends FunSuite {
     /**
       * Executing classification
       */
-    val logRes1 = sknn1.tag(test1, RES_COUNT)( (_, _) => true)
-    val logRes2 = sknn2.tag(test1, RES_COUNT)( (_, _) => true)
+    val logRes1 = sknn1.tag(test1, RES_COUNT)((_, _) => true)
+    val logRes2 = sknn2.tag(test1, RES_COUNT)((_, _) => true)
 
     assert(logRes1.size == RES_COUNT)
     assert(logRes2.size == RES_COUNT)

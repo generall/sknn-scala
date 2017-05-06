@@ -1,13 +1,19 @@
 package ml.generall.sknn.model
 
+import ml.generall.sknn.model.storage.{NodeStorage, NodeStorageFactory}
 import ml.generall.sknn.model.storage.elements.BaseElement
 
 import scala.collection.mutable
 
 /**
-  * Created by generall on 06.08.16.
+  * Main class for SkNN model
+  *
+  *
+  * T - class for storing datum
+  * N - implement storage inside single node
+  *
   */
-class Model[T <: BaseElement, N <: SkNNNode[T]](val nodeFac: (String) => N) extends Serializable{
+class Model[T <: BaseElement, N <: SkNNNode[T]](val nodeFac: String => N) extends Serializable {
 
   val nodes = new mutable.HashMap[String, N]()
 
@@ -34,12 +40,12 @@ class Model[T <: BaseElement, N <: SkNNNode[T]](val nodeFac: (String) => N) exte
     var currentNodeList = List(initNode)
     sequence.foreach(element => {
       val nextLabelsList = elementToLabels(element)
-      val nextDataList = nextLabelsList.map(x => ( getOrCreateNode(x._1), x._2) )
-      nextDataList.foreach(nextData =>  nextData._1.output ++= nextData._2.output)
-      for(
+      val nextDataList = nextLabelsList.map(x => (getOrCreateNode(x._1), x._2))
+      nextDataList.foreach(nextData => nextData._1.output ++= nextData._2.output)
+      for (
         currentNode <- currentNodeList;
         nextData <- nextDataList
-      ){
+      ) {
         val (nextNode, subelement) = nextData
         currentNode.addElement(subelement, nextNode.label)
         currentNode.addLink(nextNode)
@@ -50,7 +56,8 @@ class Model[T <: BaseElement, N <: SkNNNode[T]](val nodeFac: (String) => N) exte
   }
 
   def processSequence[K <: T](sequence: List[K]) = {
-    def foo(x: K) : List[(String, T)] = List((x.label, x))
+    def foo(x: K): List[(String, T)] = List((x.label, x))
+
     processSequenceImpl(sequence)(foo)
   }
 
@@ -63,7 +70,10 @@ class Model[T <: BaseElement, N <: SkNNNode[T]](val nodeFac: (String) => N) exte
   }
 }
 
-object Model{
+object Model {
   val INIT_LABEL = "init"
   val END_LABEL = "end"
+
+  def createModel[T <: BaseElement](k: Int = 1, nodeFactory: NodeStorageFactory[T]) =
+    new Model[T, SkNNNode[T]](label => new SkNNNodeImpl[T](label, k)(() => nodeFactory.create))
 }

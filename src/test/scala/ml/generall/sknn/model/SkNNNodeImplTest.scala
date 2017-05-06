@@ -10,7 +10,7 @@ class SkNNNodeImplTest extends FunSuite with BeforeAndAfterEach {
   var node : SkNNNode[TestElement] = null
 
   override def beforeEach() {
-    node = new SkNNNodeImpl[TestElement, TestNodeStorage]("test", 2)(() => new TestNodeStorage())
+    node = new SkNNNodeImpl[TestElement]("test", 2)(() => new TestNodeStorage())
   }
 
   test("testCalcDistances") {
@@ -42,7 +42,7 @@ class SkNNNodeImplTest extends FunSuite with BeforeAndAfterEach {
   }
 
   test("testRemoveLink") {
-    val node2 = new SkNNNodeImpl[TestElement, TestNodeStorage]("test2", 2)(() => new TestNodeStorage())
+    val node2 = new SkNNNodeImpl[TestElement]("test2", 2)(() => new TestNodeStorage())
     node.addLink(node2)
     node.removeLink("test2")
 
@@ -51,7 +51,7 @@ class SkNNNodeImplTest extends FunSuite with BeforeAndAfterEach {
   }
 
   test("testAddLink") {
-    val node2 = new SkNNNodeImpl[TestElement, TestNodeStorage]("test2", 2)(() => new TestNodeStorage())
+    val node2 = new SkNNNodeImpl[TestElement]("test2", 2)(() => new TestNodeStorage())
     node.addLink(node2)
 
     assert(node2.getIncomingNodes.head == node)

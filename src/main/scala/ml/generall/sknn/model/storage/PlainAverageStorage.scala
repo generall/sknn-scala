@@ -3,9 +3,14 @@ package ml.generall.sknn.model.storage
 /**
   * Created by generall on 07.08.16.
   */
-class PlainAverageStorage[T](distFoo: (T,T) => Double) extends PlainStorage[T](distFoo) {
+class PlainAverageStorage[T](distFoo: (T, T) => Double) extends PlainStorage[T](distFoo) {
   override def getMinDistance(element: T, n: Int): Double = {
     val closest = getClosestN(element, n)
     closest.foldLeft(0.0)((sum, pair) => sum + pair._2) / closest.size
   }
+}
+
+
+class PlainAverageStorageFactory[T](distFoo: (T, T) => Double) extends PlainStorageFactory[T](distFoo) {
+  override def create: NodeStorage[T] = new PlainAverageStorage[T](distFoo)
 }

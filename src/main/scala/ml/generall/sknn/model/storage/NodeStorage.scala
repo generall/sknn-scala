@@ -13,3 +13,7 @@ trait NodeStorage[T] {
 
   def removeElement(element: T)
 }
+
+trait NodeStorageFactory[T] {
+  def create: NodeStorage[T]
+}

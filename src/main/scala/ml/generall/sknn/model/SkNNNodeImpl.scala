@@ -8,13 +8,13 @@ import scala.collection.mutable
 /**
   * Created by generall on 06.08.16.
   */
-class SkNNNodeImpl[T <: BaseElement, S <: NodeStorage[T]](_label: String, _k: Int)(storageFac: () => S) extends SkNNNode[T]{
+class SkNNNodeImpl[T <: BaseElement](_label: String, _k: Int)(storageFac: () => NodeStorage[T]) extends SkNNNode[T] {
 
   val forwardMap = new mutable.HashMap[String, SkNNNode[T]]()
   val backwardMap = new mutable.HashMap[String, SkNNNode[T]]()
 
 
-  val storages = new mutable.HashMap[String, S]()
+  val storages = new mutable.HashMap[String, NodeStorage[T]]()
 
   override val label: String = _label
 

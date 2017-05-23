@@ -14,11 +14,11 @@ First of all you need to implement class for you data derived from
 Let's create `TestElement` class for our test data.
 TestElement contains only single value of `Double`.
 ```$scala
-class TestElement(_label: String) extends BaseElement{
+class TestElement(_label: String, _value: Double) extends BaseElement{
   override var label : String = _label
   override var output: Set[String] = Set()
 
-  var value: Double = 0.0
+  var value: Double = _value
 }
 ```
 
@@ -84,7 +84,7 @@ absolute difference between values of pair of the elements:
 ```
 
 * `TestElement` - is a type of our sequence elements
-* `PlainAverageStorageFactory` - is a factory which will create searchable storage for our training elements. It is easy to create your oun storage for special implementation of searchable storage like KD-tree.
+* `PlainAverageStorageFactory` - is a factory which will create searchable storage for our training elements. It is easy to create your own storage for special implementation of searchable storage like KD-tree.
 * `(x, y) => (x.value - y.value).abs)` - is our distance function
 
 The next step is the creation of classifier object and performing labeling:
